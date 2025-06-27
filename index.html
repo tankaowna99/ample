@@ -1,11 +1,122 @@
 <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in | AMPLE INDUSTRIES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="grey lighten-4">
 
-<html>
-   <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-      <base target="_top">
-   </head>
-   <body>
-      <iframe style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;border: 0;" src="https://script.google.com/macros/s/AKfycbyhoBe0GyuGSQoNYKayRjOwVBi0PGzSNtZybqHmNm_YoddoLjriJVEgGknkIwm9dXYhMQ/exec"></iframe>
-   </body>
+    <nav class="blue darken-2">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo center">AMPLE INDUSTRIES</a>
+            <ul class="right">
+                <li><a href="#" id="dark-mode-toggle"><i class="material-icons">brightness_4</i></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container center-align">
+        <h4 id="clock" class="blue-grey-text text-darken-2"></h4>
+    </div>
+
+    <main class="container">
+        <div id="login-section" class="card-panel center-align">
+            <h5>Admin Panel & Dashboard</h5>
+            <p>กรุณาลงชื่อเข้าใช้ด้วยบัญชี Google เพื่อเข้าสู่ระบบจัดการและดูรายงาน</p>
+            <div id="g_id_onload"
+                 data-client_id="449049627379-fjl1iht5f12qt8rtlerhkirveo8u4c04.apps.googleusercontent.com"
+                 data-callback="handleGoogleSignIn">
+            </div>
+            <div class="g_id_button"></div>
+        </div>
+
+        <div id="app-section" style="display: none;">
+            <ul class="tabs blue-grey lighten-5">
+                <li class="tab col s4"><a class="active" href="#checkin-tab">Check-in</a></li>
+                <li class="tab col s4"><a href="#dashboard-tab">Dashboard</a></li>
+                <li class="tab col s4"><a href="#admin-tab">Manage Employees</a></li>
+            </ul>
+
+            <div id="checkin-tab" class="col s12">
+                <div class="card-panel">
+                    <div class="input-field">
+                        <select id="employee-select" required>
+                            <option value="" disabled selected>เลือกรหัส/ชื่อพนักงาน</option>
+                        </select>
+                        <label>พนักงาน</label>
+                    </div>
+                    <div id="camera-container" class="center-align">
+                        <video id="camera-video" playsinline autoplay></video>
+                        <canvas id="photo-canvas" style="display:none;"></canvas>
+                        <img id="photo-preview" src="" alt="Photo Preview">
+                        <button id="flip-camera-btn" class="btn-floating blue lighten-1"><i class="material-icons">switch_camera</i></button>
+                    </div>
+                    <div class="row center-align action-buttons">
+                        <div class="col s6">
+                            <button id="checkin-btn" class="btn-large waves-effect waves-light green darken-1"><i class="material-icons left">fingerprint</i>Check In</button>
+                        </div>
+                        <div class="col s6">
+                            <button id="checkout-btn" class="btn-large waves-effect waves-light red darken-1"><i class="material-icons left">logout</i>Check Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard-tab" class="col s12">
+                <div class="card-panel">
+                    <h5>Check-in Dashboard</h5>
+                    <div class="row">
+                        <div class="input-field col s12 m5"><input type="date" id="start-date"><label>Start Date</label></div>
+                        <div class="input-field col s12 m5"><input type="date" id="end-date"><label>End Date</label></div>
+                        <div class="input-field col s12 m2"><button id="filter-btn" class="btn blue" style="width:100%">Filter</button></div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 m4"><div class="card-panel blue-grey lighten-5 center-align"><i class="material-icons large blue-text text-darken-2">people</i><h5 id="summary-present">-</h5><p>Present Today</p></div></div>
+                        <div class="col s12 m4"><div class="card-panel blue-grey lighten-5 center-align"><i class="material-icons large orange-text text-darken-2">schedule</i><h5 id="summary-late">-</h5><p>Late Arrivals</p></div></div>
+                        <div class="col s12 m4"><div class="card-panel blue-grey lighten-5 center-align"><i class="material-icons large green-text text-darken-2">location_on</i><h5 id="summary-onsite">-</h5><p>On-Site Check-ins</p></div></div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 m6"><h6>Check-ins by Location</h6><canvas id="location-chart"></canvas></div>
+                        <div class="col s12 m6"><h6>Daily Check-in Trend</h6><canvas id="daily-trend-chart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-tab" class="col s12">
+                <div class="card-panel">
+                    <h5>Manage Employees</h5>
+                    <div class="row">
+                        <input type="hidden" id="employee-form-mode" value="add">
+                        <input type="hidden" id="original-emp-id" value="">
+                        <div class="input-field col s12 m6"><input id="emp-id" type="text" class="validate"><label for="emp-id">Employee ID</label></div>
+                        <div class="input-field col s12 m6"><input id="emp-name" type="text" class="validate"><label for="emp-name">Full Name</label></div>
+                        <div class="input-field col s12 m6"><input id="emp-position" type="text"><label for="emp-position">Position</label></div>
+                        <div class="input-field col s12 m6"><input id="emp-email" type="email"><label for="emp-email">Email</label></div>
+                    </div>
+                    <button id="save-emp-btn" class="btn waves-effect waves-light blue">Add Employee</button>
+                    <button id="cancel-edit-btn" class="btn-flat waves-effect waves-light" style="display: none;">Cancel Edit</button>
+                    <h6 style="margin-top: 2rem;">Current Employees</h6>
+                    <table class="striped highlight responsive-table">
+                        <thead><tr><th>ID</th><th>Full Name</th><th>Position</th><th>Email</th><th>Actions</th></tr></thead>
+                        <tbody id="employee-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="loader" class="loader-overlay">
+        <div class="preloader-wrapper big active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>
+        <p id="loader-text">Loading...</p>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>
